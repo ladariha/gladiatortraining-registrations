@@ -1,0 +1,8 @@
+.idea
+.vscode
+frontend/node_modules
+frontend/build
+frontend/.eslintcache
+frontend/yarn-error.log
+gladiatortraining-registrations.zip
+dist

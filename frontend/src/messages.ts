@@ -47,6 +47,7 @@ export const admin = {
 
 export const common = {
   sent: "Email odeslán",
+  confirmEmail: "Potvrďte email:",
   resendPaymentDetails: "Odeslat email s platebními údaji na emailovou adresu uvedenou při registraci?",
   send: "Odeslat",
   yes: "Ano",

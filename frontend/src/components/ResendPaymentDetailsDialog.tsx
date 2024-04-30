@@ -49,7 +49,7 @@ export const ResendPaymentDetailsDialog: React.FC<Props> = ({ groupId, close }) 
       <p className="m-0">
         {common.resendPaymentDetails}
         <div className="flex flex-column gap-2">
-          <label htmlFor="resend-email">{common.email}</label>
+          <label htmlFor="resend-email">{common.confirmEmail}</label>
           <InputText
             id="resend-email"
             required={true}

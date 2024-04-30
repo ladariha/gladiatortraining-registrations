@@ -385,7 +385,6 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
             rows={100}
             header={renderHeader()}
             emptyMessage={common.noRegistrations}
-            tableStyle={{ minWidth: "90vw" }}
           >
             <Column
               header="#"

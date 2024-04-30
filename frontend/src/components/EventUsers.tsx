@@ -18,7 +18,6 @@ import { useDeleteRegistration } from "../hooks/useDeleteRegistration";
 import { ToastContext } from "../context/ToastContext";
 import { EmptyMessage } from "./EmptyMessage";
 import { Spinner } from "./Spinner";
-import { Button } from "primereact/button";
 import { ResendPaymentDetailsDialog } from "./ResendPaymentDetailsDialog";
 
 export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) => {
@@ -147,15 +146,17 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
 
   const priceCell = React.useCallback((e: Registration) => {
     return (
-      <Button
-        link={true}
-        onClick={() => {
+      <Tag
+        severity="info"
+        className="cursor-pointer mr-1"
+        onClick={async () => {
           if (!e.is_leader) {
             return;
           }
           togglePaymentDetails(e);
         }}
-      >{`${e.price} Kč`}</Button>
+        value={`${e.price} Kč`}
+      />
     );
   }, []);
   const dOBCell = React.useCallback((e: Registration) => (e.date_of_birth ? timestampToDateWithoutTime(e.date_of_birth) : ""), []);

@@ -294,9 +294,13 @@
 .p-dropdown-items-wrapper {
   background: #fff !important;
 }
-.p-dialog.p-confirm-dialog {
+.p-dialog.p-confirm-dialog,
+.p-dialog-default {
   background: #fff !important;
   padding: 1rem !important;
+}
+.p-dialog-default .p-dialog-footer {
+  padding: 1.5rem !important;
 }
 .p-dialog.p-confirm-dialog .p-dialog-footer {
   padding: 0 1.5rem 1.5rem !important;

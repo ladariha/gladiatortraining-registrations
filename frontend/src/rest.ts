@@ -1,8 +1,9 @@
-const BASE = `${window.GladiatortrainingRegistrations.baseUrl}?rest_route=/gtevents/v1/`;
+const BASE = `${window.GladiatortrainingRegistrations.baseUrl}/?rest_route=/gtevents/v1/`;
 
 export const RestRoutes = {
   whoAmI: `${BASE}user`,
   keys: `${BASE}keys`,
+  mail: `${BASE}mail`,
   events: `${BASE}events`,
   registrations: `${BASE}registrations`,
   registrationGroup: `${BASE}registrationGroup`,

@@ -4,6 +4,7 @@ export const errors = {
   event: "Omlouváme se za problémy, nelze načíst událost",
   keys: "Omlouváme se za problémy, nelze vytvořit klíč",
   logs: "Omlouváme se za problémy, nelze načíst logy",
+  email: "Zadaný email se neshoduje s registračními údaji",
 };
 
 export const empty = {
@@ -45,6 +46,9 @@ export const admin = {
 };
 
 export const common = {
+  sent: "Email odeslán",
+  resendPaymentDetails: "Odeslat email s platebními údaji na emailovou adresu uvedenou při registraci?",
+  send: "Odeslat",
   yes: "Ano",
   back: "Zpět",
   no: "Ne",

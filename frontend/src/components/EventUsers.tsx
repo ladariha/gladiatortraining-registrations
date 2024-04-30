@@ -18,24 +18,31 @@ import { useDeleteRegistration } from "../hooks/useDeleteRegistration";
 import { ToastContext } from "../context/ToastContext";
 import { EmptyMessage } from "./EmptyMessage";
 import { Spinner } from "./Spinner";
+import { Button } from "primereact/button";
+import { ResendPaymentDetailsDialog } from "./ResendPaymentDetailsDialog";
 
 export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) => {
   const { error, registrations, isLoading, refresh } = useFetchRegistrations(event.id);
   const { canUserManageEvents } = usePermissions();
   const { refreshKey } = React.useContext(EventRefreshContext);
   const { showMessage } = React.useContext(ToastContext);
-
   const [globalFilterValue, setGlobalFilterValue] = React.useState<string>("");
+  const clubCell = React.useCallback((e: Registration) => e.club || "", []);
+  const { setPaidStatus, error: paidError, result: paidResult } = useTogglePaid();
+  const { deleteRegistration, result: deleteResult, error: deleteError } = useDeleteRegistration();
+  const variableSymbol = React.useRef<string>("");
+  const messageForRecepient = React.useRef<string>("");
+  const [paymentDetailsVisible, setPaymentDetailsVisible] = React.useState<Registration>();
+  const [isLoadingQrCode, setIsLoadingQrCode] = React.useState<boolean>(false);
+  const [filters, setFilters] = React.useState<DataTableFilterMeta>();
+  const [resendGroupId, setResendGroupId] = React.useState<number>();
+
+  const closeResendDialog = React.useCallback(() => setResendGroupId(undefined), []);
 
   React.useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey]);
-
-  const clubCell = React.useCallback((e: Registration) => e.club || "", []);
-
-  const { setPaidStatus, error: paidError, result: paidResult } = useTogglePaid();
-  const { deleteRegistration, result: deleteResult, error: deleteError } = useDeleteRegistration();
 
   React.useEffect(() => {
     if (deleteError) {
@@ -115,13 +122,6 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
     },
     [setPaidStatus, refresh, registrations, deleteRegistration, showMessage]
   );
-  const priceCell = React.useCallback((e: Registration) => `${e.price} Kč`, []);
-  const dOBCell = React.useCallback((e: Registration) => (e.date_of_birth ? timestampToDateWithoutTime(e.date_of_birth) : ""), []);
-
-  const variableSymbol = React.useRef<string>("");
-  const messageForRecepient = React.useRef<string>("");
-  const [paymentDetailsVisible, setPaymentDetailsVisible] = React.useState<Registration>();
-  const [isLoadingQrCode, setIsLoadingQrCode] = React.useState<boolean>(false);
 
   const togglePaymentDetails = React.useCallback(
     (e?: Registration) => {
@@ -145,30 +145,42 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
     [registrations, event]
   );
 
-  const paidCell = React.useCallback(
-    (e: Registration) => {
-      if (!e.is_leader) {
-        return <></>;
-      }
+  const priceCell = React.useCallback((e: Registration) => {
+    return (
+      <Button
+        link={true}
+        onClick={() => {
+          if (!e.is_leader) {
+            return;
+          }
+          togglePaymentDetails(e);
+        }}
+      >{`${e.price} Kč`}</Button>
+    );
+  }, []);
+  const dOBCell = React.useCallback((e: Registration) => (e.date_of_birth ? timestampToDateWithoutTime(e.date_of_birth) : ""), []);
 
-      return (
-        <Tag
-          onClick={() => {
-            if (!e.is_leader) {
-              return;
-            }
-            togglePaymentDetails(e);
-          }}
-          severity={e.paid ? "success" : "danger"}
-          className={e.is_leader ? "cursor-pointer" : e.paid ? "" : "not-paid"}
-          title={e.is_leader ? common.showPaymentDetails : common.noShowPaymentDetails}
-          icon={`pi pi-${e.paid ? "check" : "question-circle"}`}
-          value={e.paid ? common.paid : common.notPaid}
-        />
-      );
-    },
-    [togglePaymentDetails]
-  );
+  const paidCell = React.useCallback((e: Registration) => {
+    if (!e.is_leader) {
+      return <></>;
+    }
+
+    return (
+      <Tag
+        onClick={() => {
+          if (!e.is_leader || e.paid) {
+            return;
+          }
+          setResendGroupId(e.group_id);
+        }}
+        severity={e.paid ? "success" : "danger"}
+        className={e.paid ? "" : "cursor-pointer"}
+        title={e.is_leader ? common.showPaymentDetails : ""}
+        icon={`pi pi-${e.paid ? "check" : "question-circle"}`}
+        value={e.paid ? common.paid : common.notPaid}
+      />
+    );
+  }, []);
 
   const adminColumns = [
     <Column
@@ -198,6 +210,12 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
       header={common.email}
     />,
     <Column
+      key="price"
+      field="price"
+      body={priceCell}
+      header={common.price}
+    />,
+    <Column
       field=""
       key="adminActions"
       body={adminActionsCell}
@@ -205,7 +223,6 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
     />,
   ];
 
-  const [filters, setFilters] = React.useState<DataTableFilterMeta>();
   const initFilters = () => {
     setFilters({
       // eslint-disable-next-line no-null/no-null
@@ -238,15 +255,6 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
   };
 
   const getQrImage = () => {
-    // return `https://chart.googleapis.com/chart?chs=240x240&cht=qr&choe=UTF-8&chld=H|0&chl=SPD*1.0*ACC:${
-    //   event.iban ||
-    //   getIBAN({
-    //     accountNumber: event.account_number,
-    //     bankCode: event.bank_code,
-    //     accountPrefix: event.prefix || "",
-    //   })
-    // }*AM:${paymentDetailsVisible?.price}*CC:CZK*MSG:${messageForRecepient.current}*X-VS:${variableSymbol.current}`;
-
     const prefix = event.prefix ? `accountPrefix=${event.prefix}&` : "";
 
     return `http://api.paylibo.com/paylibo/generator/czech/image?${prefix}accountNumber=${event.account_number}&size=240&bankCode=${
@@ -271,6 +279,12 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
 
   return (
     <>
+      {resendGroupId !== undefined && (
+        <ResendPaymentDetailsDialog
+          groupId={resendGroupId}
+          close={closeResendDialog}
+        />
+      )}
       <div className="flex align-items-center">
         <h2 className="mt-5">{common.registrations}</h2>
         {canUserManageEvents() && (
@@ -393,11 +407,6 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
               field="club"
               body={clubCell}
               header={common.clubName}
-            />
-            <Column
-              field="price"
-              body={priceCell}
-              header={common.price}
             />
             <Column
               field="paid"

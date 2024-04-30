@@ -4,6 +4,9 @@ include_once plugin_dir_path(__FILE__) . "ErrorsUtils.php";
 
 class MailService
 {
+  // FOLLOWING LINE MUST BE 8th LINE OF FILE FOR BUILD.SH !!!
+public static $apiKey = "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";
+
   public static function getDefaultImage(
   ) {
     return "https://gladiatortraining.cz/wp-content/uploads/2022/03/VLAJKA.png";
@@ -153,6 +156,7 @@ HTML;
 
   public static function sendEmail($toName, $toEmail, $subject, $htmlMessage)
   {
+    global $API_KEY;
 
     $fromName = 'Gladiator Training';
     $fromEmail = 'info@gladiatortraining.cz';
@@ -182,10 +186,13 @@ HTML;
 
     $headers = array(
       'accept: application/json',
-      'api-Key: ' . MAIL_API_KEY,
+      'api-Key: ' . MailService::$apiKey,
       'Content-Type: application/json',
       'Expect:'
     );
+
+    ErrorsUtils::log(json_encode($headers));
+
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
     $info = curl_getinfo($ch);

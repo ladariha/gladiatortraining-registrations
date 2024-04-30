@@ -1,3 +1,5 @@
+import { formError } from "./messages";
+
 type PaymentInfo = {
   bankCode: string;
   accountNumber: string;
@@ -37,7 +39,7 @@ export const getIBAN = (e: PaymentInfo): string => {
   const iban = `CZ${checksum}${bankCode}${prefix}${accountNumber}`;
 
   if (iban.length !== 24) {
-    throw new Error("Bad iban");
+    throw new Error(formError.accountNumber);
   }
 
   return iban;

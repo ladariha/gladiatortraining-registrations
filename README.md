@@ -1,4 +1,6 @@
 # Gladiator Training Registrations
+Simple WordPress plugin for events and registrations
+
 
 ## Build
 ```
@@ -12,3 +14,6 @@ $ MAIL_API_KEY='xxx' ./build.sh
 ```
 [gladiatortraining_registrations_app]
 ```
+
+## Disclaimer
+I'm not a PHP developer, excuse coding style ;)

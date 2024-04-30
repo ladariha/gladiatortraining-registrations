@@ -4,7 +4,8 @@ VERSION=$(sed -n "3p" gladiatortraining-registrations.php | cut -d'"' -f 2)
 NEXTVERSION=$(echo ${VERSION} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 echo "Increasing version to ${NEXTVERSION}"
 sed -i "3s/.*/\$PLUGIN_VERSION = \"${NEXTVERSION}\";/" gladiatortraining-registrations.php
-sed -i "20s/.*/ * Version:           ${NEXTVERSION}/" gladiatortraining-registrations.php
+sed -i "4s/.*/\$MAIL_API_KEY = \"${MAIL_API_KEY}\";/" gladiatortraining-registrations.php
+sed -i "21s/.*/ * Version:           ${NEXTVERSION}/" gladiatortraining-registrations.php
 
 
 echo "Installing client dependencies"
@@ -36,13 +37,11 @@ cp -R frontend/build/* dist/frontend/build
 
 find dist/frontend -name "*.map" | xargs rm -r
 
-
-echo "Setting MailService API key"
-sed -i "3s/.*/\$API_KEY = \"${MAIL_API_KEY}\";/" dist/includes/MailService.php
-
 echo "Compressing files"
 cd dist
 zip -r ../gladiatortraining-registrations.zip * &> /dev/null
 cd ..
 rm -rf dist
-echo "Done"
+echo "============"
+echo "Done, new version ${NEXTVERSION}"
+echo "============"

@@ -42,6 +42,10 @@ cd dist
 zip -r ../gladiatortraining-registrations.zip * &> /dev/null
 cd ..
 rm -rf dist
+
+# revert changes to avoid commiting them to repo
+sed -i "4s/.*/\$MAIL_API_KEY = \"PLACEHOLDER\";/" gladiatortraining-registrations.php
+
 echo "============"
 echo "Done, new version ${NEXTVERSION}"
 echo "============"

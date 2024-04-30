@@ -1,7 +1,7 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.112";
-$MAIL_API_KEY = "";
+$PLUGIN_VERSION = "1.0.116";
+$MAIL_API_KEY = "PLACEHOLDER";
 /**
  * The plugin bootstrap file
  *
@@ -18,7 +18,7 @@ $MAIL_API_KEY = "";
  * Plugin Name:       gladiatortraining-registrations
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-registrations
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.112
+ * Version:           1.0.116
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+
@@ -102,7 +102,7 @@ function frontend_init()
 		"gladiatortraining_registrations_app_js",
 		plugins_url($path . "/js/main.js", __FILE__),
 		array(),
-		"1.3",
+		$PLUGIN_VERSION,
 		array(
 			'in_footer' => true,
 		)

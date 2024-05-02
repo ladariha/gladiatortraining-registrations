@@ -10,7 +10,6 @@ import { getDownloadRegistrationsContent, saveBlobAs, timestampToDateWithoutTime
 import { FilterMatchMode } from "primereact/api";
 import { InputText } from "primereact/inputtext";
 import { Tag } from "primereact/tag";
-import { Sidebar } from "primereact/sidebar";
 import { EventRefreshContext } from "../context/EventRefreshContext";
 import { useTogglePaid } from "../hooks/useTogglePaid";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
@@ -19,6 +18,7 @@ import { ToastContext } from "../context/ToastContext";
 import { EmptyMessage } from "./EmptyMessage";
 import { Spinner } from "./Spinner";
 import { ResendPaymentDetailsDialog } from "./ResendPaymentDetailsDialog";
+import { PaymentDetailsSidebar } from "./PaymentDetailsSidebar";
 
 export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) => {
   const { error, registrations, isLoading, refresh } = useFetchRegistrations(event.id);
@@ -29,10 +29,7 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
   const clubCell = React.useCallback((e: Registration) => e.club || "", []);
   const { setPaidStatus, error: paidError, result: paidResult } = useTogglePaid();
   const { deleteRegistration, result: deleteResult, error: deleteError } = useDeleteRegistration();
-  const variableSymbol = React.useRef<string>("");
-  const messageForRecepient = React.useRef<string>("");
-  const [paymentDetailsVisible, setPaymentDetailsVisible] = React.useState<Registration>();
-  const [isLoadingQrCode, setIsLoadingQrCode] = React.useState<boolean>(false);
+  const [leaderRegistration, setLeaderRegistration] = React.useState<Registration>();
   const [filters, setFilters] = React.useState<DataTableFilterMeta>();
   const [resendGroupId, setResendGroupId] = React.useState<number>();
 
@@ -125,24 +122,19 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
   const togglePaymentDetails = React.useCallback(
     (e?: Registration) => {
       if (e && registrations) {
-        const groupId = e.group_id;
-        const leader = registrations.find((r) => r.is_leader && r.group_id === groupId);
-        if (leader !== undefined) {
-          variableSymbol.current = `${`${event.id}`.padStart(3, "0")}${`${leader.id}`.padStart(7, "0")}`;
-          messageForRecepient.current = `${leader.name} ${leader.last_name}`;
-        } else {
-          throw new Error("No team captain found");
-        }
+        setLeaderRegistration(e);
       }
-      setPaymentDetailsVisible(e);
-      setIsLoadingQrCode(true);
+
       if (!e) {
-        messageForRecepient.current = "";
-        variableSymbol.current = "";
+        setLeaderRegistration(undefined);
       }
     },
-    [registrations, event]
+    [registrations]
   );
+
+  const onHidePaymentDetails = React.useCallback(() => {
+    setLeaderRegistration(undefined);
+  }, []);
 
   const priceCell = React.useCallback((e: Registration) => {
     return (
@@ -255,14 +247,6 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
     saveBlobAs([data], "registrace.csv");
   };
 
-  const getQrImage = () => {
-    const prefix = event.prefix ? `accountPrefix=${event.prefix}&` : "";
-
-    return `http://api.paylibo.com/paylibo/generator/czech/image?${prefix}accountNumber=${event.account_number}&size=240&bankCode=${
-      event.bank_code
-    }&amount=${paymentDetailsVisible?.price}&currency=CZK&vs=${variableSymbol.current}&message=${encodeURIComponent(messageForRecepient.current)}`;
-  };
-
   const renderHeader = () => {
     return (
       <div className="flex justify-content-end">
@@ -310,71 +294,13 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
       {!isLoading && !error && registrations && registrations.length === 0 && <EmptyMessage msg={common.noRegistrations} />}
       {!isLoading && !error && registrations && registrations.length > 0 && (
         <>
-          <Sidebar
-            visible={!!paymentDetailsVisible}
-            onHide={() => togglePaymentDetails(undefined)}
-            position="right"
-            className="w-full md:w-12 lg:w-6"
-          >
-            <h2>{common.payment}</h2>
-            <div className="flex flex-column">
-              <ul>
-                <li>
-                  <strong>{common.price}:&nbsp;</strong>
-                  {paymentDetailsVisible?.price}&nbsp;Kč
-                </li>
-                {event.prefix && (
-                  <li>
-                    <strong>{common.prefix}:&nbsp;</strong>
-                    {event.prefix}
-                  </li>
-                )}
-                <li>
-                  <strong>{common.accountNumber}:&nbsp;</strong>
-                  {event.account_number}
-                </li>
-                <li>
-                  <strong>{common.bankCode}:&nbsp;</strong>
-                  {event.bank_code}
-                </li>
-                {variableSymbol.current && (
-                  <li>
-                    <strong>{common.variableSymbolRequired}:&nbsp;</strong>
-                    {variableSymbol.current}
-                  </li>
-                )}
-                {messageForRecepient.current && (
-                  <li>
-                    <strong>{common.recepientMsg}:&nbsp;</strong>
-                    {messageForRecepient.current}
-                  </li>
-                )}
-                {event.iban && (
-                  <li>
-                    <strong>{common.iban}:&nbsp;</strong>
-                    {event.iban}
-                  </li>
-                )}
-                {event.swift && (
-                  <li>
-                    <strong>{common.swift}:&nbsp;</strong>
-                    {event.swift}
-                  </li>
-                )}
-              </ul>
-              {isLoadingQrCode && <Spinner />}
-              {paymentDetailsVisible && (
-                <div className="align-self-center text-center">
-                  <h4>{common.qr}</h4>
-                  <p className="text-red-600">{common.qrWarning}</p>
-                  <img
-                    onLoad={() => setIsLoadingQrCode(false)}
-                    src={getQrImage()}
-                  />
-                </div>
-              )}
-            </div>
-          </Sidebar>
+          {leaderRegistration && (
+            <PaymentDetailsSidebar
+              event={event}
+              leaderRegistration={leaderRegistration}
+              onHide={onHidePaymentDetails}
+            />
+          )}
           <DataTable
             size="small"
             stripedRows={true}

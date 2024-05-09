@@ -28,13 +28,13 @@ class MailRoute extends BaseRoute
 
     $user = Persistance::getLeader($groupId);
     if ($user->email !== $requestedEmail) {
-      return new WP_REST_Response("Bad Request", 404);
+      return new WP_REST_Response("Bad Request", 400);
     }
 
     $event = Persistance::getEventByGroup($groupId, true);
 
     if (is_null($event)) {
-      return new WP_REST_Response("Bad Request", 404);
+      return new WP_REST_Response("Not Found", 400);
     }
 
     $registrations = Persistance::getRegistrationsByGroupId($groupId);

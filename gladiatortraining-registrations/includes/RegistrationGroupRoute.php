@@ -29,7 +29,7 @@ class RegistrationGroupRoute extends BaseRoute
       $id = intval($parameters["id"]);
       $event = Persistance::getEventByGroup($id, !$this->isAdmin());
       if (is_null($event)) {
-        return new WP_REST_Response("Bad Request", 404);
+        return new WP_REST_Response("Not Found", 404);
       }
       $peopleRemoved = $headCount = Persistance::getRegistrationCountForRegistration($id);
       Persistance::deleteRegistration($id);
@@ -68,7 +68,7 @@ class RegistrationGroupRoute extends BaseRoute
 
         return new WP_REST_Response("", 200);
       } else {
-        return new WP_REST_Response("Bad Request", 404);
+        return new WP_REST_Response("Bad Request", 400);
       }
     } catch (Exception $e) {
       ErrorsUtils::log($e->getMessage());

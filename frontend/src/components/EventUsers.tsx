@@ -3,7 +3,7 @@ import { Message } from "primereact/message";
 import { useFetchRegistrations } from "../hooks/useFetchRegistrations";
 import { admin, common, errors } from "../messages";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
-import { Column } from "primereact/column";
+import { Column, ColumnEditorOptions } from "primereact/column";
 import { Registration, RegistrationEvent } from "../types";
 import { usePermissions } from "../hooks/usePermissions";
 import { getDownloadRegistrationsContent, saveBlobAs, timestampToDateWithoutTime } from "../utils";
@@ -19,10 +19,15 @@ import { EmptyMessage } from "./EmptyMessage";
 import { Spinner } from "./Spinner";
 import { ResendPaymentDetailsDialog } from "./ResendPaymentDetailsDialog";
 import { PaymentDetailsSidebar } from "./PaymentDetailsSidebar";
+import { useUpdateUser } from "../hooks/useUpdateUser";
+import { Dropdown } from "primereact/dropdown";
+import { Calendar } from "primereact/calendar";
 
 export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) => {
   const { error, registrations, isLoading, refresh } = useFetchRegistrations(event.id);
   const { canUserManageEvents } = usePermissions();
+  const { updateUser } = useUpdateUser();
+  const [birthDate, setBirthDate] = React.useState<Date | undefined | null>();
   const { refreshKey } = React.useContext(EventRefreshContext);
   const { showMessage } = React.useContext(ToastContext);
   const [globalFilterValue, setGlobalFilterValue] = React.useState<string>("");
@@ -74,6 +79,16 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
       });
     }
   }, [paidError, paidResult]);
+
+  const textEditor = (options: ColumnEditorOptions) => {
+    return (
+      <InputText
+        type="text"
+        value={options.value}
+        onChange={(e) => options.editorCallback?.(e.target.value)}
+      />
+    );
+  };
 
   const adminActionsCell = React.useCallback(
     (e: Registration) => {
@@ -175,30 +190,62 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
     );
   }, []);
 
+  const dropdownEditor = (options: ColumnEditorOptions) => {
+    return (
+      <Dropdown
+        value={options.value}
+        options={[
+          { label: common.sexMale, value: "muž" },
+          { label: common.sexFemale, value: "žena" },
+        ]}
+        onChange={(e) => options.editorCallback?.(e.value)}
+        placeholder={common.sex}
+      />
+    );
+  };
+
+  const dateEditor = (options: ColumnEditorOptions) => {
+    return (
+      <Calendar
+        value={birthDate || new Date(options.value)}
+        onChange={(e) => {
+          setBirthDate(e.value);
+        }}
+        dateFormat="dd/mm/yy"
+        showTime={false}
+      />
+    );
+  };
+
   const adminColumns = [
     <Column
       key="dob"
       field="date_of_birth"
+      editor={(options) => dateEditor(options)}
       body={dOBCell}
       header={common.birthDate}
     />,
     <Column
       key="phone"
+      editor={(options) => textEditor(options)}
       field="phone"
       header={common.phone}
     />,
     <Column
       key="sex"
+      editor={(options) => dropdownEditor(options)}
       field="sex"
       header={common.sex}
     />,
     <Column
       field="address"
       key="address"
+      editor={(options) => textEditor(options)}
       header={common.address}
     />,
     <Column
       field="email"
+      editor={(options) => textEditor(options)}
       key="email"
       header={common.email}
     />,
@@ -213,6 +260,12 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
       key="adminActions"
       body={adminActionsCell}
       header={common.actions}
+    />,
+    <Column
+      key="rowEditor"
+      rowEditor={true}
+      headerStyle={{ width: "10%", minWidth: "8rem" }}
+      bodyStyle={{ textAlign: "center" }}
     />,
   ];
 
@@ -307,6 +360,16 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
             value={registrations}
             paginator={true}
             dataKey="id"
+            onRowEditComplete={
+              canUserManageEvents()
+                ? async (e) => {
+                    await updateUser(e, e.data.id, birthDate?.getTime() || e.data.date_of_birth);
+                    setBirthDate(undefined);
+                    refresh();
+                  }
+                : undefined
+            }
+            editMode={canUserManageEvents() ? "row" : undefined}
             filters={filters}
             rows={100}
             header={renderHeader()}
@@ -319,10 +382,12 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
             />
             <Column
               field="name"
+              editor={(options) => textEditor(options)}
               header={common.firstName}
             />
             <Column
               field="last_name"
+              editor={(options) => textEditor(options)}
               header={common.lastName}
             />
             <Column
@@ -331,6 +396,7 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
             />
             <Column
               field="club"
+              editor={(options) => textEditor(options)}
               body={clubCell}
               header={common.clubName}
             />

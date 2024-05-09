@@ -137,7 +137,7 @@ class RegistrationsRoute extends BaseRoute
       $event = Persistance::getEvent($parameters['id'], true);
       if (is_null($event)) {
         ErrorsUtils::log("registration event not found: " . $parameters['id']);
-        return new WP_REST_Response("Bad Request", 404);
+        return new WP_REST_Response("Not Found", 404);
       }
 
 
@@ -146,7 +146,7 @@ class RegistrationsRoute extends BaseRoute
 
       if (is_null($requestedRegistration)) {
         ErrorsUtils::log("registration group not found: " . $request->get_body());
-        return new WP_REST_Response("Bad Request", 404);
+        return new WP_REST_Response("Not Found", 404);
       }
 
 
@@ -155,7 +155,7 @@ class RegistrationsRoute extends BaseRoute
       $isValid = RegistrationsRoute::validateRegistrationPayload($postData, intval($requestedRegistration->number_of_people), $isRegistrationAllowed, $spacesLeft);
       if (!$isValid) {
         ErrorsUtils::log("payload not valid " . $request->get_body());
-        return new WP_REST_Response("Bad Request", 404);
+        return new WP_REST_Response("Bad Request", 400);
       }
 
       $newGroupId = Persistance::createRegistrationGroup($event->id, -1, $requestedRegistration->name, intval($requestedRegistration->price), intval($requestedRegistration->number_of_people), $postData->registrations[0]->email, $transactionId);

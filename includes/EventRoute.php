@@ -161,7 +161,7 @@ class EventRoute extends BaseRoute
       $payload = json_decode($request->get_body());
       $isValid = EventRoute::validateEventPayload($payload, true);
       if (!$isValid) {
-        return new WP_REST_Response(array('error' => 'Error message.'), 400);
+        return new WP_REST_Response("Bad Request", 400);
       }
       Persistance::updateEvent($parameters['id'], $payload);
       $newEvent = Persistance::getEvent($parameters['id'], !$this->isAdmin());

@@ -22,6 +22,7 @@ export const event = {
 export const admin = {
   viewTable: "Zobrazit tabulku",
   csv: "Stáhnout CSV",
+  userUpdated: "Registrace upravena",
   logs: "Zobrazit logy",
   apiKeys: "API klíče",
   setKey: "Uložit",
@@ -55,6 +56,7 @@ export const common = {
   no: "Ne",
   recepientMsg: "Zpráva pro příjemce",
   error: "Oops",
+  wrongData: "Chybné údaje",
   registrationFor: "Registrace na akci",
   paid: "Zaplaceno",
   member: "Účastník",
@@ -112,6 +114,7 @@ export const common = {
 };
 
 export const formError = {
+  fields: "Prosím oprav:",
   name: "Prosím zadej název",
   firstName: "Prosím zadej jméno",
   lastName: "Prosím zadej příjmení",

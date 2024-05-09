@@ -2,6 +2,7 @@ const BASE = `${window.GladiatortrainingRegistrations.baseUrl}/?rest_route=/gtev
 
 export const RestRoutes = {
   whoAmI: `${BASE}user`,
+  registeredUser: `${BASE}registeredUser`,
   keys: `${BASE}keys`,
   mail: `${BASE}mail`,
   events: `${BASE}events`,

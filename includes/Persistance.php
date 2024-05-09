@@ -488,6 +488,29 @@ class Persistance
     return $result[0];
   }
 
+  public static function updateRegisteredUser($userId, $registration)
+  {
+    global $wpdb;
+
+    $table = Persistance::getRegisteredUserTableName();
+    $result = $wpdb->update(
+      $table,
+      array(
+        'name' => $registration->name,
+        'last_name' => $registration->last_name,
+        'email' => $registration->email,
+        'date_of_birth' => $registration->date_of_birth,
+        'address' => $registration->address,
+        'club' => $registration->club,
+        'phone' => $registration->phone,
+        'sex' => $registration->sex,
+      ),
+      array("id" => $userId),
+      array("%s", "%s", "%s", "%d", "%s", "%s", "%s", "%s")
+    );
+    Persistance::handleUpdateInsertResult($wpdb, $result, "updateRegisteredUser");
+  }
+
 
   public static function updateEvent($eventId, $event)
   {

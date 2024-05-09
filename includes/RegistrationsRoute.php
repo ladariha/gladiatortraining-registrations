@@ -111,6 +111,8 @@ class RegistrationsRoute extends BaseRoute
   }
 
 
+
+
   public function findRegistration($regTypes, $requestedName)
   {
     foreach ($regTypes as $type) {
@@ -144,7 +146,7 @@ class RegistrationsRoute extends BaseRoute
 
       if (is_null($requestedRegistration)) {
         ErrorsUtils::log("registration group not found: " . $request->get_body());
-        return new WP_REST_Response("Not Found", 400);
+        return new WP_REST_Response("Not Found", 404);
       }
 
 

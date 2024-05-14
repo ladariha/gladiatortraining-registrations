@@ -34,7 +34,7 @@ class Utils
 
   public static function isValidDate($value)
   {
-    return is_int($value) && $value > 0;
+    return is_int($value);
   }
 
   public static function isValidStringNumber($value)

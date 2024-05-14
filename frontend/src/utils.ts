@@ -37,7 +37,7 @@ export const isValidEmail = (v?: string): boolean => {
   return /^\S.*@\S+$/.test(v as string);
 };
 
-export const isValidDate = (v?: number) => v !== undefined && v > 0;
+export const isValidDate = (v?: number) => v !== undefined;
 
 export const isValidStringNumber = (v?: string) => {
   if (!isValidString(v)) {

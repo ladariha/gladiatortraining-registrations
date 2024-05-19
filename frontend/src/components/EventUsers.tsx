@@ -151,21 +151,24 @@ export const EventUsers: React.FC<{ event: RegistrationEvent }> = ({ event }) =>
     setLeaderRegistration(undefined);
   }, []);
 
-  const priceCell = React.useCallback((e: Registration) => {
-    return (
-      <Tag
-        severity="info"
-        className="cursor-pointer mr-1"
-        onClick={async () => {
-          if (!e.is_leader) {
-            return;
-          }
-          togglePaymentDetails(e);
-        }}
-        value={`${e.price} Kč`}
-      />
-    );
-  }, []);
+  const priceCell = React.useCallback(
+    (e: Registration) => {
+      return (
+        <Tag
+          severity="info"
+          className="cursor-pointer mr-1"
+          onClick={() => {
+            if (!e.is_leader) {
+              return;
+            }
+            togglePaymentDetails(e);
+          }}
+          value={`${e.price} Kč`}
+        />
+      );
+    },
+    [togglePaymentDetails]
+  );
   const dOBCell = React.useCallback((e: Registration) => (e.date_of_birth ? timestampToDateWithoutTime(e.date_of_birth) : ""), []);
 
   const paidCell = React.useCallback((e: Registration) => {

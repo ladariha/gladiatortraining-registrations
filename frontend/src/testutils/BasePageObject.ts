@@ -1,5 +1,5 @@
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 /**
  * Base Page Object class providing common selectors and actions for component testing
@@ -79,7 +79,7 @@ export class BasePageObject {
 
   async waitForElementToBeRemoved(element: HTMLElement | (() => HTMLElement | null)) {
     return waitFor(() => {
-      const el = typeof element === 'function' ? element() : element;
+      const el = typeof element === "function" ? element() : element;
       expect(el).not.toBeInTheDocument();
     });
   }

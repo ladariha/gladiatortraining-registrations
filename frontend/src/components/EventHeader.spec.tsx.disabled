@@ -1,39 +1,47 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { EventHeader } from './EventHeader';
-import { BasePageObject } from '../testutils/BasePageObject';
-import { RegistrationEvent, UserRole } from '../types';
-import { UserContext } from '../context/UserContext';
-import { ToastContext } from '../context/ToastContext';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import { render } from "@testing-library/react";
+import { EventHeader } from "./EventHeader";
+import { BasePageObject } from "../testutils/BasePageObject";
+import { RegistrationEvent, UserRole } from "../types";
+import { UserContext } from "../context/UserContext";
+import { ToastContext } from "../context/ToastContext";
+import { BrowserRouter } from "react-router-dom";
 
 // Mock the complex child components
-jest.mock('./EventAdminActions', () => ({
+jest.mock("./EventAdminActions", () => ({
   EventAdminActions: () => <div data-testid="event-admin-actions" />,
 }));
 
-jest.mock('./RegisterSidebar', () => ({
+jest.mock("./RegisterSidebar", () => ({
   RegisterSidebar: () => <div data-testid="register-sidebar" />,
 }));
 
 // Mock PrimeReact components
-jest.mock('primereact/button', () => ({
+jest.mock("primereact/button", () => ({
   Button: ({ label, onClick, disabled, ...props }: any) => (
-    <button onClick={onClick} disabled={disabled} data-testid="register-button" {...props}>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      data-testid="register-button"
+      {...props}
+    >
       {label}
     </button>
   ),
 }));
 
-jest.mock('primereact/tag', () => ({
+jest.mock("primereact/tag", () => ({
   Tag: ({ value, severity }: any) => (
-    <span data-testid="visibility-tag" className={`tag-${severity}`}>
+    <span
+      data-testid="visibility-tag"
+      className={`tag-${severity}`}
+    >
       {value}
     </span>
   ),
 }));
 
-jest.mock('primereact/menu', () => ({
+jest.mock("primereact/menu", () => ({
   Menu: () => <div data-testid="menu" />,
 }));
 
@@ -42,7 +50,7 @@ const createWrapper = (userRole: UserRole = UserRole.Visitor) => {
   return ({ children }: { children: React.ReactNode }) => (
     <BrowserRouter>
       <UserContext.Provider value={{ role: userRole, setRole: jest.fn() }}>
-        <ToastContext.Provider value={{ show: jest.fn() }}>
+        <ToastContext.Provider value={{ showMessage: jest.fn() }}>
           {children}
         </ToastContext.Provider>
       </UserContext.Provider>
@@ -53,21 +61,21 @@ const createWrapper = (userRole: UserRole = UserRole.Visitor) => {
 // Create a mock event object
 const createMockEvent = (overrides: Partial<RegistrationEvent> = {}): RegistrationEvent => ({
   id: 1,
-  name: 'Test Event',
-  short_description: 'Test Description',
-  description: 'Long description',
+  name: "Test Event",
+  short_description: "Test Description",
+  description: "Long description",
   max_people: 10,
   time: Date.now() + 86400000, // 24 hours from now
   registration_end: Date.now() + 43200000, // 12 hours from now
   people: 5,
-  image: 'test-image.jpg',
+  image: "test-image.jpg",
   visible: 1,
-  registrations: 'Individual,Group',
-  bank_code: '1234',
-  account_number: '567890',
-  prefix: '123',
-  swift: 'TEST',
-  iban: 'TEST123456789',
+  registrations: "Individual,Group",
+  bank_code: "1234",
+  account_number: "567890",
+  prefix: "123",
+  swift: "TEST",
+  iban: "TEST123456789",
   ...overrides,
 });
 
@@ -75,15 +83,15 @@ const createMockEvent = (overrides: Partial<RegistrationEvent> = {}): Registrati
 class EventHeaderPageObject extends BasePageObject {
   async findEventName() {
     // In detail view, it's an h1, in list view it's clickable
-    return this.queryByText('Test Event') || this.queryByRole('heading', { name: 'Test Event' });
+    return this.queryByText("Test Event") || this.queryByRole("heading", { name: "Test Event" });
   }
 
   async findRegisterButton() {
-    return this.queryByTestId('register-button');
+    return this.queryByTestId("register-button");
   }
 
   async findVisibilityTag() {
-    return this.queryByTestId('visibility-tag');
+    return this.queryByTestId("visibility-tag");
   }
 
   async findBackLink() {
@@ -91,19 +99,19 @@ class EventHeaderPageObject extends BasePageObject {
   }
 
   async findEventTime() {
-    return this.queryByRole('generic', { name: /\d{1,2}\.\d{1,2}\.\d{4}/ });
+    return this.queryByRole("generic", { name: /\d{1,2}\.\d{1,2}\.\d{4}/ });
   }
 
   async findEventDescription() {
-    return this.queryByText('Test Description');
+    return this.queryByText("Test Description");
   }
 
   async findAdminActions() {
-    return this.queryByTestId('event-admin-actions');
+    return this.queryByTestId("event-admin-actions");
   }
 }
 
-describe('EventHeader', () => {
+describe("EventHeader", () => {
   let pageObject: EventHeaderPageObject;
   const mockRefresh = jest.fn();
 
@@ -112,47 +120,61 @@ describe('EventHeader', () => {
     mockRefresh.mockClear();
   });
 
-  describe('rendering', () => {
-    it('should render without crashing', () => {
+  describe("rendering", () => {
+    it("should render without crashing", () => {
       const event = createMockEvent();
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
     });
 
-    it('should display event name', () => {
+    it("should display event name", () => {
       const event = createMockEvent();
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       expect(pageObject.findEventName()).toBeInTheDocument();
     });
 
-    it('should display event description in list view', () => {
+    it("should display event description in list view", () => {
       const event = createMockEvent();
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} isDetailView={false} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          isDetailView={false}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       expect(pageObject.findEventDescription()).toBeInTheDocument();
     });
 
-    it('should not display event description in detail view', () => {
+    it("should not display event description in detail view", () => {
       const event = createMockEvent();
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} isDetailView={true} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          isDetailView={true}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
@@ -160,8 +182,8 @@ describe('EventHeader', () => {
     });
   });
 
-  describe('registration button', () => {
-    it('should show register button when registration is open', () => {
+  describe("registration button", () => {
+    it("should show register button when registration is open", () => {
       const event = createMockEvent({
         visible: 1,
         people: 5,
@@ -169,18 +191,21 @@ describe('EventHeader', () => {
         registration_end: Date.now() + 86400000, // future date
       });
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       const button = pageObject.findRegisterButton();
       expect(button).toBeInTheDocument();
-      expect(button).not.toBeDisabled();
+      expect(button).toBeEnabled();
     });
 
-    it('should show disabled button when event is full', () => {
+    it("should show disabled button when event is full", () => {
       const event = createMockEvent({
         visible: 1,
         people: 10,
@@ -188,9 +213,12 @@ describe('EventHeader', () => {
         registration_end: Date.now() + 86400000,
       });
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
@@ -199,7 +227,7 @@ describe('EventHeader', () => {
       expect(button).toBeDisabled();
     });
 
-    it('should show disabled button when registration ended', () => {
+    it("should show disabled button when registration ended", () => {
       const event = createMockEvent({
         visible: 1,
         people: 5,
@@ -207,9 +235,12 @@ describe('EventHeader', () => {
         registration_end: Date.now() - 86400000, // past date
       });
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
@@ -219,49 +250,63 @@ describe('EventHeader', () => {
     });
   });
 
-  describe('admin features', () => {
-    it('should show visibility tag for admin users', () => {
+  describe("admin features", () => {
+    it("should show visibility tag for admin users", () => {
       const event = createMockEvent({ visible: 1 });
       const wrapper = createWrapper(UserRole.Admin);
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       expect(pageObject.findVisibilityTag()).toBeInTheDocument();
     });
 
-    it('should not show visibility tag for regular users', () => {
+    it("should not show visibility tag for regular users", () => {
       const event = createMockEvent({ visible: 1 });
       const wrapper = createWrapper(UserRole.Visitor);
-      
+
       render(
-        <EventHeader event={event} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       expect(pageObject.findVisibilityTag()).not.toBeInTheDocument();
     });
 
-    it('should show admin actions for admin users in detail view', () => {
+    it("should show admin actions for admin users in detail view", () => {
       const event = createMockEvent();
       const wrapper = createWrapper(UserRole.Admin);
-      
+
       render(
-        <EventHeader event={event} isDetailView={true} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          isDetailView={true}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       expect(pageObject.findAdminActions()).toBeInTheDocument();
     });
 
-    it('should not show admin actions for regular users', () => {
+    it("should not show admin actions for regular users", () => {
       const event = createMockEvent();
       const wrapper = createWrapper(UserRole.Visitor);
-      
+
       render(
-        <EventHeader event={event} isDetailView={true} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          isDetailView={true}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
@@ -269,25 +314,33 @@ describe('EventHeader', () => {
     });
   });
 
-  describe('detail view features', () => {
-    it('should show back link in detail view', () => {
+  describe("detail view features", () => {
+    it("should show back link in detail view", () => {
       const event = createMockEvent();
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} isDetailView={true} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          isDetailView={true}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 
       expect(pageObject.findBackLink()).toBeInTheDocument();
     });
 
-    it('should not show back link in list view', () => {
+    it("should not show back link in list view", () => {
       const event = createMockEvent();
       const wrapper = createWrapper();
-      
+
       render(
-        <EventHeader event={event} isDetailView={false} refresh={mockRefresh} />,
+        <EventHeader
+          event={event}
+          isDetailView={false}
+          refresh={mockRefresh}
+        />,
         { wrapper }
       );
 

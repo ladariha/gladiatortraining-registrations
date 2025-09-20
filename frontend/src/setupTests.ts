@@ -26,6 +26,10 @@ jest.mock('primereact/tag', () => ({
   Tag: jest.fn(({ value }) => `Tag: ${value}`),
 }));
 
+jest.mock('primereact/progressspinner', () => ({
+  ProgressSpinner: jest.fn(() => `<div data-testid="progress-spinner"></div>`),
+}));
+
 // Mock React Router components for route testing
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

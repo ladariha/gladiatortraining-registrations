@@ -6,8 +6,6 @@ import userEvent from '@testing-library/user-event';
  * Follows the Page Object pattern to encapsulate selectors and reduce duplication in tests
  */
 export class BasePageObject {
-  protected user = userEvent.setup();
-
   // Common selectors
   async findByTestId(testId: string) {
     return screen.findByTestId(testId);
@@ -53,25 +51,25 @@ export class BasePageObject {
     return screen.queryByRole(role, options);
   }
 
-  // Common actions
+  // Common actions (using older userEvent API)
   async click(element: HTMLElement) {
-    await this.user.click(element);
+    await userEvent.click(element);
   }
 
   async type(element: HTMLElement, text: string) {
-    await this.user.type(element, text);
+    await userEvent.type(element, text);
   }
 
   async clear(element: HTMLElement) {
-    await this.user.clear(element);
+    await userEvent.clear(element);
   }
 
   async hover(element: HTMLElement) {
-    await this.user.hover(element);
+    await userEvent.hover(element);
   }
 
   async selectOptions(element: HTMLElement, values: string | string[]) {
-    await this.user.selectOptions(element, values);
+    await userEvent.selectOptions(element, values);
   }
 
   // Wait for async operations
